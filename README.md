@@ -42,9 +42,11 @@ Source files and masters live outside this repo (`rml-site-v2/assets`). Placemen
 
 * **Images** are WebP, resized to 800px and 1400px wide versions for `srcset`. All have `width`/`height`, `decoding="async"`, and `loading="lazy"` (nothing above the fold is an `<img>`; the hero is a video poster that gets preloaded).
 * **Example work label:** every mockup of an ad, site, form, or search result carries a visible "Example work" corner tag. These are sample creative, never client results. Keep the tag on any new mockup.
-* **Videos** (hero, services band, roofing and HVAC card) are decorative, muted, `playsinline`, `preload="none"`, with WebP posters. The HTML default source is the 720p file. `main.js` switches to the 1080p file on wide screens (viewport 1024px or more and at least 1600 device pixels wide, unless Data Saver is on).
+* **Videos** (hero: homes with roofing and HVAC; services band; Who we serve: golf fairway feature and the roofing and HVAC card) are decorative, muted, `playsinline`, `preload="none"`, with WebP posters. The HTML default source is the 720p file. `main.js` switches to the 1080p file on wide screens (viewport 1024px or more and at least 1600 device pixels wide, unless Data Saver is on). Smaller slots (cards and the golf feature) only switch on high density screens.
 * Playback starts only when a video scrolls into view (IntersectionObserver) and pauses when it leaves or the tab is hidden.
 * **Loop crossfade:** the clips are 5 seconds and not seamless, so `main.js` stacks two `<video>` elements and crossfades between them over 0.4s at each loop point. The clip is downloaded once (fetch, then a blob URL shared by both elements), so the second element costs no extra bandwidth.
+* **Hero exception:** the hero clip (`hero-homes-roofing-hvac-loop`) is a ping pong edit whose last frame matches its first, so it uses a plain native `loop` on a single element (`data-native-loop`). A crossfade on that clip would blend frames moving in opposite directions and soften roof edges for no benefit.
+* The hero scrim is brand green, weighted to the left on desktop (behind the headline) and an even top to bottom wash on mobile.
 * **Reduced motion:** with `prefers-reduced-motion: reduce`, videos never load or play (the poster still shows), and scroll animations are off.
 * Each video has a small pause and play button.
 * To re-encode a 1080p loop: `ffmpeg -i master.mp4 -an -c:v libx264 -preset slow -crf 23 -maxrate 6000k -bufsize 12000k -pix_fmt yuv420p -movflags +faststart name-1080p.mp4`

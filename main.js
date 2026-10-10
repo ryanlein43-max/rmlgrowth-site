@@ -60,7 +60,7 @@
     var w = Math.max(window.innerWidth || 0, doc.clientWidth || 0);
     var dpr = window.devicePixelRatio || 1;
     var wantHd = hd && !conn.saveData && w >= 1024 && w * dpr >= 1600;
-    if (video.closest(".card-media")) wantHd = hd && !conn.saveData && w >= 1024 && dpr >= 2; // small card slot
+    if (video.closest(".card-media, .serve-feature")) wantHd = hd && !conn.saveData && w >= 1024 && dpr >= 2; // small card slot
     return wantHd ? hd : sd;
   }
 
@@ -73,6 +73,7 @@
     this.userPaused = false;
     this.fading = false;
     this.raf = 0;
+    this.native = wrap.hasAttribute("data-native-loop");
   }
   LoopVideo.prototype.setup = function () {
     if (this.ready) return;
@@ -80,8 +81,20 @@
     var self = this;
     var a = this.a;
     var src = pickSource(a);
-    a.removeAttribute("loop"); // looping is handled by the crossfade below
     a.muted = true;
+    this.wrap.setAttribute("data-source", src.split("/").pop());
+    if (this.native) {
+      // Seamless clip (ping pong edit with matching ends): plain native loop, one element, no crossfade.
+      while (a.firstChild) a.removeChild(a.firstChild);
+      a.loop = true;
+      a.preload = "auto";
+      a.src = src;
+      this.cur = a;
+      this.loaded = true;
+      this.bindToggle();
+      return;
+    }
+    a.removeAttribute("loop"); // looping is handled by the crossfade below
     var b = a.cloneNode(false);
     while (b.firstChild) b.removeChild(b.firstChild);
     b.removeAttribute("poster");
@@ -97,7 +110,6 @@
     this.next = b;
     // Download the clip once and share it between both elements (blob URL),
     // so the second element never triggers a second network download.
-    this.wrap.setAttribute("data-source", src.split("/").pop());
     var attach = function (url) {
       while (a.firstChild) a.removeChild(a.firstChild);
       a.src = url;
@@ -115,15 +127,18 @@
     } else {
       attach(src);
     }
-    if (this.btn) {
-      this.btn.hidden = false;
-      this.btn.addEventListener("click", function () {
-        self.userPaused = !self.userPaused;
-        self.btn.classList.toggle("is-paused", self.userPaused);
-        self.btn.setAttribute("aria-label", self.userPaused ? "Play video" : "Pause video");
-        if (self.userPaused) self.pause(); else self.play();
-      });
-    }
+    this.bindToggle();
+  };
+  LoopVideo.prototype.bindToggle = function () {
+    var self = this;
+    if (!this.btn) return;
+    this.btn.hidden = false;
+    this.btn.addEventListener("click", function () {
+      self.userPaused = !self.userPaused;
+      self.btn.classList.toggle("is-paused", self.userPaused);
+      self.btn.setAttribute("aria-label", self.userPaused ? "Play video" : "Pause video");
+      if (self.userPaused) self.pause(); else self.play();
+    });
   };
   LoopVideo.prototype.play = function () {
     if (reduceMQ.matches || this.userPaused || !this.visible) return;
@@ -132,13 +147,13 @@
     if (!this.loaded) return; // play() runs again once the clip has downloaded
     var p = this.cur.play();
     if (p && p.catch) p.catch(function () {});
-    this.tick();
+    if (!this.native) this.tick();
   };
   LoopVideo.prototype.pause = function () {
     this.wantPlay = false;
     if (!this.ready) return;
     this.a.pause();
-    this.b.pause();
+    if (this.b) this.b.pause();
     cancelAnimationFrame(this.raf);
     this.raf = 0;
   };
