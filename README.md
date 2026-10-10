@@ -44,7 +44,7 @@ Source files and masters live outside this repo (`rml-site-v2/assets`). Placemen
 * **Example work label:** every mockup of an ad, site, form, or search result carries a visible "Example work" corner tag. These are sample creative, never client results. Keep the tag on any new mockup.
 * **Videos** (hero, services band, roofing and HVAC card) are decorative, muted, `playsinline`, `preload="none"`, with WebP posters. The HTML default source is the 720p file. `main.js` switches to the 1080p file on wide screens (viewport 1024px or more and at least 1600 device pixels wide, unless Data Saver is on).
 * Playback starts only when a video scrolls into view (IntersectionObserver) and pauses when it leaves or the tab is hidden.
-* **Loop crossfade:** the clips are 5 seconds and not seamless, so `main.js` stacks two `<video>` elements and crossfades between them over 0.4s at each loop point.
+* **Loop crossfade:** the clips are 5 seconds and not seamless, so `main.js` stacks two `<video>` elements and crossfades between them over 0.4s at each loop point. The clip is downloaded once (fetch, then a blob URL shared by both elements), so the second element costs no extra bandwidth.
 * **Reduced motion:** with `prefers-reduced-motion: reduce`, videos never load or play (the poster still shows), and scroll animations are off.
 * Each video has a small pause and play button.
 * To re-encode a 1080p loop: `ffmpeg -i master.mp4 -an -c:v libx264 -preset slow -crf 23 -maxrate 6000k -bufsize 12000k -pix_fmt yuv420p -movflags +faststart name-1080p.mp4`

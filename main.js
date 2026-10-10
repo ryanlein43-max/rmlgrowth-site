@@ -77,19 +77,16 @@
   LoopVideo.prototype.setup = function () {
     if (this.ready) return;
     this.ready = true;
-    var src = pickSource(this.a);
+    var self = this;
     var a = this.a;
+    var src = pickSource(a);
     a.removeAttribute("loop"); // looping is handled by the crossfade below
-    while (a.firstChild) a.removeChild(a.firstChild);
-    a.src = src;
-    a.preload = "auto";
     a.muted = true;
     var b = a.cloneNode(false);
+    while (b.firstChild) b.removeChild(b.firstChild);
+    b.removeAttribute("poster");
     b.muted = true;
     b.playsInline = true;
-    b.removeAttribute("poster");
-    b.src = src;
-    b.preload = "auto";
     b.style.opacity = "0";
     a.style.opacity = "1";
     a.style.zIndex = "1";
@@ -98,8 +95,26 @@
     this.b = b;
     this.cur = a;
     this.next = b;
-    b.load();
-    var self = this;
+    // Download the clip once and share it between both elements (blob URL),
+    // so the second element never triggers a second network download.
+    this.wrap.setAttribute("data-source", src.split("/").pop());
+    var attach = function (url) {
+      while (a.firstChild) a.removeChild(a.firstChild);
+      a.src = url;
+      b.src = url;
+      a.preload = b.preload = "auto";
+      self.loaded = true;
+      if (self.wantPlay) self.play();
+    };
+    if (window.fetch && window.URL && URL.createObjectURL) {
+      fetch(src).then(function (r) {
+        if (!r.ok) throw new Error("video fetch failed");
+        return r.blob();
+      }).then(function (blob) { attach(URL.createObjectURL(blob)); })
+        .catch(function () { attach(src); });
+    } else {
+      attach(src);
+    }
     if (this.btn) {
       this.btn.hidden = false;
       this.btn.addEventListener("click", function () {
@@ -113,11 +128,14 @@
   LoopVideo.prototype.play = function () {
     if (reduceMQ.matches || this.userPaused || !this.visible) return;
     this.setup();
+    this.wantPlay = true;
+    if (!this.loaded) return; // play() runs again once the clip has downloaded
     var p = this.cur.play();
     if (p && p.catch) p.catch(function () {});
     this.tick();
   };
   LoopVideo.prototype.pause = function () {
+    this.wantPlay = false;
     if (!this.ready) return;
     this.a.pause();
     this.b.pause();
