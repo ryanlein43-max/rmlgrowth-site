@@ -2,14 +2,19 @@
 (function () {
   "use strict";
   var doc = document.documentElement;
-  doc.classList.add("js");
+  doc.classList.add("js"); // normally already set by the inline head script
   var EMAIL = "ryanlein@rmlgrowth.com";
   var reduceMQ = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
 
   /* Header: blur and shadow once the page scrolls */
   var header = document.querySelector(".site-header");
   if (header) {
-    var onScroll = function () { header.classList.toggle("is-scrolled", window.scrollY > 8); };
+    var ticking = false;
+    var onScroll = function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () { ticking = false; header.classList.toggle("is-scrolled", window.scrollY > 8); });
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
   }
@@ -139,9 +144,13 @@
     cur.style.zIndex = "1";
     var p = next.play();
     if (p && p.catch) p.catch(function () {});
-    void next.offsetWidth; // commit the starting opacity before the transition
-    next.style.transition = "opacity " + FADE + "s linear";
-    next.style.opacity = "1";
+    // start the fade on the next frame so the starting opacity is committed without a forced layout
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        next.style.transition = "opacity " + FADE + "s linear";
+        next.style.opacity = "1";
+      });
+    });
     setTimeout(function () {
       cur.pause();
       cur.style.transition = "none";
