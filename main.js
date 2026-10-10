@@ -45,10 +45,11 @@
   }
 
   /* Background loop videos
-     - HTML default source is the 720p encode; wide or high density screens switch to 1080p.
-     - Playback starts only when the video is on screen (IntersectionObserver).
-     - Two stacked <video> elements alternate, with a 0.4s crossfade at each loop point.
-     - prefers-reduced-motion: nothing plays, the poster still stays visible. */
+     * HTML default source is the 720p encode; wide or high density screens switch to 1080p.
+     * Playback starts only when the video is on screen (IntersectionObserver).
+     * Two stacked <video> elements alternate, with a 0.4s crossfade at each loop point.
+       Clips marked data-native-loop (seamless ping pong edits) use one element and a plain loop.
+     * prefers-reduced-motion: nothing plays, the poster still stays visible. */
   var FADE = 0.4;
   var loops = [];
 
@@ -162,7 +163,7 @@
     cancelAnimationFrame(this.raf);
     var step = function () {
       var cur = self.cur, d = cur.duration;
-      if (!self.fading && d && isFinite(d) && cur.currentTime >= d - FADE) self.crossfade();
+      if (!self.fading && d && isFinite(d) && cur.currentTime + FADE >= d) self.crossfade();
       self.raf = requestAnimationFrame(step);
     };
     this.raf = requestAnimationFrame(step);
