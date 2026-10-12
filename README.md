@@ -13,7 +13,7 @@ Plain static HTML, one CSS file, and a small vanilla JS file. No build step and 
 index.html            Home: hero, how we work, services, who we serve, closing call to action
 book/index.html       /book: book a call form (phone required, preferred call times)
 contact/index.html    /contact: inquiry form (phone optional)
-404.html              Not found page (sets <base> so it works at any URL depth)
+404.html              Not found page (root absolute paths, because it is served at any URL depth)
 styles.css            All styles, including the self hosted @font-face rules
 main.js               Header blur on scroll, mobile menu, scroll reveal, loop videos, form handling
 assets/favicon.svg    RML monogram (also used as the header and footer logo mark)
@@ -27,7 +27,7 @@ Home page anchors: `#how-we-work`, `#services`, `#multi-channel`, `#seo`, `#meta
 ## Editing
 
 1. Copy comes from `copy-v2.md` (Marketing). Change wording there first, then mirror it in the HTML. Visible copy must not contain em dashes, en dashes, or hyphens used as dashes.
-2. **Keep every link and asset path relative** (`./book/`, `../styles.css`, and so on). The preview runs under the `/rmlgrowth-site/` subpath, and relative paths let the same files work there and at the domain root later. Do not use root absolute paths like `/styles.css`.
+2. **Keep every link and asset path relative** (`./book/`, `../styles.css`, and so on). The preview runs under the `/rmlgrowth-site/` subpath, and relative paths let the same files work there and at the domain root later. Do not use root absolute paths like `/styles.css`. The one exception is `404.html`, which GitHub serves at any URL depth, so it uses root absolute paths.
 3. The header and footer are repeated in `index.html`, `book/index.html`, `contact/index.html`, and `404.html`. Update all four when nav items change.
 4. Preview locally: run `python3 -m http.server 8000` in the repo, then open http://localhost:8000/.
 5. Commit and push to `main`. GitHub Pages redeploys automatically, usually within a minute.
