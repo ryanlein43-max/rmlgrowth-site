@@ -4,8 +4,8 @@ Marketing website for **RML Growth Partners LLC** (rmlgrowth.com). Version 2.
 
 Plain static HTML, one CSS file, and a small vanilla JS file. No build step and no dependencies: GitHub Pages serves the repo as it is from the `main` branch root.
 
-* Preview (GitHub Pages): https://ryanlein43-max.github.io/rmlgrowth-site/
-* Production (planned): https://rmlgrowth.com, not connected yet (see the DNS plan below)
+* Live: https://rmlgrowth.com (launched October 11, 2026)
+* The old preview URL https://ryanlein43-max.github.io/rmlgrowth-site/ now redirects to the domain.
 
 ## Structure
 
@@ -61,15 +61,18 @@ Both forms post with `fetch` to `https://formsubmit.co/ajax/ryanlein@rmlgrowth.c
 * After activation, FormSubmit may offer a random alias for the address. You can swap it into the form `action` to keep the address out of the page source.
 * Success replaces the form with the page's thank you message. If sending fails, a message offers the email address instead.
 
-## DNS plan: rmlgrowth.com on Porkbun (not done yet)
+## Launch and DNS: rmlgrowth.com on Porkbun (live)
 
-Nothing below has been applied. When DNS is approved:
+Launched October 11, 2026.
 
-1. **GitHub:** Repo, Settings, Pages, Custom domain: `rmlgrowth.com` (this creates a `CNAME` file in the repo). Optionally verify the domain in your GitHub account Pages settings to prevent takeover.
-2. **Porkbun DNS** (Domain Management, DNS): remove the default parking records, then add:
-   * `A` records for the apex (`rmlgrowth.com`, host blank): `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
-   * Optional `AAAA` records for the apex: `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`
-   * `CNAME` record: host `www` pointing to `ryanlein43-max.github.io`
-3. Wait for DNS to propagate (minutes to a few hours), then turn on **Enforce HTTPS** in Pages settings once the certificate is issued.
-4. All paths are relative, so no code changes are needed when moving from the subpath preview to the domain root. The 404 page detects its base automatically.
-5. Keep the existing MX and email forwarding records for rmlgrowth.com so ryanlein@rmlgrowth.com keeps working.
+* **Porkbun DNS** (applied by the Project Lead):
+  * Apex `A`: `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
+  * Apex `AAAA`: `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`
+  * `www` `CNAME` to `ryanlein43-max.github.io`
+  * Porkbun parking ALIAS and wildcard records removed
+  * Email records left as they were: MX `fwd1.porkbun.com` and `fwd2.porkbun.com`, SPF TXT `v=spf1 include:_spf.porkbun.com ~all`. Keep them, or ryanlein@rmlgrowth.com forwarding (and the form emails) will stop.
+* **GitHub Pages:** the `CNAME` file in the repo root contains `rmlgrowth.com`, and the Pages custom domain is set to the same value. Do not delete the `CNAME` file; it removes the custom domain.
+* **HTTPS:** GitHub issued a certificate for `rmlgrowth.com` and `www.rmlgrowth.com`, and Enforce HTTPS is on. GitHub renews it automatically, as long as DNS keeps pointing at GitHub.
+* **Redirects (handled by GitHub):** `www.rmlgrowth.com` goes to the apex, `http` goes to `https`, and the old github.io preview URL goes to the domain.
+* **Optional hardening:** verify `rmlgrowth.com` under GitHub account settings, Pages, Verified domains. This adds a `_github-pages-challenge-ryanlein43-max` TXT record at Porkbun and prevents domain takeover. It has not been done yet.
+* **Forms:** FormSubmit activation for ryanlein@rmlgrowth.com still needs the first real submission and Ryan's confirmation click (see the Form backend section).
