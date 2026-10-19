@@ -36,6 +36,13 @@ Palette (see `:root` in `styles.css`): deep green `#0B3D2E`, mid green `#145C43`
 
 Content rules: no About, Impact, or team pages; no invented metrics, testimonials, client logos, stock team photos, or response time promises.
 
+## Brand and v3 notes
+
+* Logo: R mark (direction 4). Header and footer use `assets/logo/r-mark-lockup-on-light.svg` (coordinates rounded, viewBox cropped to the artwork). Favicons: `assets/favicon.svg`, `assets/favicon-32.png`, `assets/favicon-16.png`, and `assets/apple-touch-icon.png` (180 px, rendered from the icon SVG on the site background).
+* No share image exists yet, so pages carry no og:image or twitter:image. Add one at `assets/og-image.png` (1200 x 630) and reference it with an absolute https://rmlgrowth.com/ URL.
+* AI search optimization: card `#ai-search` (spans both columns at 960 px and up) and explainer `#ai-search-explained`. The card image ships at 800 px only.
+* The home page carries JSON-LD Organization schema listing the five services.
+
 ## Media notes
 
 Source files and masters live outside this repo (`rml-site-v2/assets`). Placement follows `shot-list.md`.
